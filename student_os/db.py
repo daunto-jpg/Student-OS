@@ -154,3 +154,4 @@ def init_db(db_path=None):
         return get_schema_version(conn)
     finally:
         conn.close()
+      # Database module - Student
