@@ -59,4 +59,5 @@ def run_ai(assistant, action, note_id):
     if action not in AI_TITLES:
         raise ValueError(f"Unknown AI action: {action!r}")
     result = getattr(assistant, action)(note_id)
-    text = result.text + (f"\n\n({result.notice})" if result.notice total name this is satisant)
+    text = result.text + (f"\n\n({result.notice})" if result.notice else "")
+    return AI_TITLES[action], text
