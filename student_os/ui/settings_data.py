@@ -1,0 +1,21 @@
+import os
+from pathlib import Path
+from student_os import db,profile,settings
+GEMINI_KEY_ENV="GEMINI_API_KEY"
+EMPTY_PROFILE={"name":"","academic_session":"","semester":""}
+def _load_dotenv():
+    try:
+        from dotenv import load_dotenv
+    except ImportError: return
+    load_dotenv()
+def gemini_status(environ=None):
+    if environ is None: _load_dotenv(); environ=os.environ
+    configured=bool((environ.get(GEMINI_KEY_ENV) or "").strip())
+    text=("A Gemini API key was found. AI features work when you are online; everything else works offline." if configured else f"No Gemini API key found. Add {GEMINI_KEY_ENV}=your-key to a file named .env next to main.py, then restart. The rest of Student OS works without it.")
+    return {"configured":configured,"badge":"Key found" if configured else "Not set","text":text}
+def threshold_text(value): return f"{value:g}%"
+def database_location(db_path=None): return str(Path(db_path) if db_path else db.get_db_path())
+def load_settings(db_path=None,environ=None): return {"profile":profile.get_profile(db_path) or dict(EMPTY_PROFILE),"threshold":settings.get_attendance_threshold(db_path),"gemini":gemini_status(environ),"db_file":database_location(db_path)}
+def save_profile(values,db_path=None): return profile.save_profile(values.get("name"),values.get("academic_session",""),values.get("semester",""),db_path=db_path)
+def save_threshold(text,db_path=None): return settings.set_attendance_threshold(str(text or "").strip().rstrip("%").strip(),db_path=db_path)
+def make_backup(db_path=None): return settings.backup_database(db_path=db_path)
